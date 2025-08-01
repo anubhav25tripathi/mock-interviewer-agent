@@ -1,6 +1,5 @@
 import React from 'react'
 import Image from 'next/image'
-import { Span } from 'next/dist/trace';
 import { Button } from './button';
 import { cn } from "@/lib/utils";
 //import { cn } from '@/lib/utils';
@@ -50,11 +49,11 @@ const Agent = ({userName}:AgentProps) => {
         
         {callStatus !=="ACTIVE" ? (
             <button className='relative btn-call'>
-                <span className={cn('absolute animate-ping rounded-full opacity-75',callStatus !=='CONNECTING' & 'hidden')}>
+                <span className={cn('absolute animate-ping rounded-full opacity-75',callStatus !=='CONNECTING' && 'hidden')}>
 
                 </span>
                 <span>
-                    {callStatus==="INACTIVE" || CallStatus==="FINISHED" ? 'Call' :'. . .'}
+                    {callStatus==="INACTIVE" || callStatus==="FINISHED" ? 'Call' :'. . .'}
                 </span>
 
             </button>

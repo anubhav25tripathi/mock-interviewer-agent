@@ -21,9 +21,8 @@ export async function setSessionCookie(idToken:string){
 export async function getCurrentUser():Promise<User | null>{
     const cookieStore=await cookies();
     const sessionCookie=cookieStore.get('session')?.value;
-    if(!sessionCookie){
-        return null;
-    }
+    if(!sessionCookie) return null;
+    
     try{
       const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
       const userRecord = await db
@@ -88,9 +87,17 @@ export async function signIn(params:SignInParams){
             }
         }
         await setSessionCookie(idToken);
+        return {
+        success: true,
+         message: "Signed in successfully",
+        };
     }
-    catch(e){
-       console.log(e)
+    catch(error:any){
+       console.log(error);
+       return {
+         success: false,
+          message: "Failed to log into account. Please try again.",
+       };
     }
 }
 
