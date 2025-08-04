@@ -5,7 +5,7 @@ import { getRandomInterviewCover } from '@/lib/utils';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import DisplayTechIcons from './DisplayTechIcons';
-const InterviewCard = ({interviewId,userId,role,type,techstack,createdAt}:InterviewCardProps) => {
+const InterviewCard = ({id,userId,role,type,techstack,createdAt}:InterviewCardProps) => {
      const feedback=null as Feedback | null;
      const normalisedType= /mix/gi.test(type) ? 'Mixed':type;
      const formattedData=dayjs(feedback?.createdAt || createdAt || Date.now()).format('MMM D,YYYY');
@@ -36,7 +36,7 @@ const InterviewCard = ({interviewId,userId,role,type,techstack,createdAt}:Interv
       </div>
       <div className='flex flex-row justify-between'>
         <DisplayTechIcons techStack={techstack} />
-        <Button className='btn-primary'><Link href={feedback ? `/interview/${interviewId}/feedback`:`/interview/${interviewId}`}>{feedback ? 'Check Feedback' :'View'}</Link></Button>
+        <Button className='btn-primary'><Link href={feedback ? `/interview/${id}/feedback`:`/interview/${id}`}>{feedback ? 'Check Feedback' :'View'}</Link></Button>
       </div>
       </div>
     </div>
