@@ -10,10 +10,16 @@ import {getInterviewsByUserId, getLatestInterviews } from '@/lib/actions/general
   //  if (!user || !user.id) {
   //   return <p>Unable to fetch user. Please sign in.</p>
   // }
-  const [userInterviews,allInterview]=await Promise.all([getInterviewsByUserId(user?.id!)
-    , getLatestInterviews({userId:user?.id!}),]);
+  let userInterviews = [];
+  let allInterview = [];
+  if (user && user.id) {
+    [userInterviews, allInterview] = await Promise.all([
+      getInterviewsByUserId(user.id),
+      getLatestInterviews({ userId: user.id }),
+    ]);
+  }
   const hasPastInterviews=userInterviews?.length >0;
-  const hasUpcomingInterviews=allInterview?.length>0;
+  const hasUpcomingInterviews = (allInterview?.length ?? 0) > 0;
   return (
       <>
       <section className='card-cta'>
