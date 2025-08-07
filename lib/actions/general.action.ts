@@ -56,9 +56,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
       .join("");
 
     const { object } = await generateObject({
-      model: google("gemini-2.0-flash-001", {
-        structuredOutputs: false,
-      }),
+      model: google("gemini-2.0-flash-001"),
       schema: feedbackSchema,
       prompt: `
         You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
@@ -77,15 +75,19 @@ export async function createFeedback(params: CreateFeedbackParams) {
     });
 
     const feedback = {
-      interviewId: interviewId,
-      userId: userId,
-      totalScore: object.totalScore,
-      categoryScores: object.categoryScores,
-      strengths: object.strengths,
-      areasForImprovement: object.areasForImprovement,
-      finalAssessment: object.finalAssessment,
-      createdAt: new Date().toISOString(),
-    };
+  interviewId: interviewId,
+  userId: userId,
+  totalScore: object.totalScore,
+  communicationSkills: object.communicationSkills,
+  technicalKnowledge: object.technicalKnowledge,
+  problemSolving: object.problemSolving,
+  culturalFit: object.culturalFit,
+  confidenceAndClarity: object.confidenceAndClarity,
+  strengths: object.strengths,
+  areasForImprovement: object.areasForImprovement,
+  finalAssessment: object.finalAssessment,
+  createdAt: new Date().toISOString(),
+};
 
  let feedbackRef;
 

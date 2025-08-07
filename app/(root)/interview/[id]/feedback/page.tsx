@@ -10,6 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/actions/auth.action";
 
+// ...existing imports...
+
 const Feedback = async ({ params }: RouteParams) => {
   const { id } = await params;
   const user = await getCurrentUser();
@@ -64,14 +66,36 @@ const Feedback = async ({ params }: RouteParams) => {
       {/* Interview Breakdown */}
       <div className="flex flex-col gap-4">
         <h2>Breakdown of the Interview:</h2>
-        {feedback?.categoryScores?.map((category, index) => (
-          <div key={index}>
-            <p className="font-bold">
-              {index + 1}. {category.name} ({category.score}/100)
-            </p>
-            <p>{category.comment}</p>
-          </div>
-        ))}
+        <div>
+          <p className="font-bold">
+            1. Communication Skills ({feedback?.communicationSkills?.score}/100)
+          </p>
+          <p>{feedback?.communicationSkills?.comment}</p>
+        </div>
+        <div>
+          <p className="font-bold">
+            2. Technical Knowledge ({feedback?.technicalKnowledge?.score}/100)
+          </p>
+          <p>{feedback?.technicalKnowledge?.comment}</p>
+        </div>
+        <div>
+          <p className="font-bold">
+            3. Problem Solving ({feedback?.problemSolving?.score}/100)
+          </p>
+          <p>{feedback?.problemSolving?.comment}</p>
+        </div>
+        <div>
+          <p className="font-bold">
+            4. Cultural Fit ({feedback?.culturalFit?.score}/100)
+          </p>
+          <p>{feedback?.culturalFit?.comment}</p>
+        </div>
+        <div>
+          <p className="font-bold">
+            5. Confidence and Clarity ({feedback?.confidenceAndClarity?.score}/100)
+          </p>
+          <p>{feedback?.confidenceAndClarity?.comment}</p>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -116,4 +140,5 @@ const Feedback = async ({ params }: RouteParams) => {
   );
 };
 
+// ...existing code...
 export default Feedback;
