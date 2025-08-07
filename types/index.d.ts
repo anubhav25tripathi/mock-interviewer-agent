@@ -2,11 +2,26 @@ interface Feedback {
   id: string;
   interviewId: string;
   totalScore: number;
-  categoryScores: Array<{
-    name: string;
+  communicationSkills: {
     score: number;
     comment: string;
-  }>;
+  };
+  technicalKnowledge: {
+    score: number;
+    comment: string;
+  };
+  problemSolving: {
+    score: number;
+    comment: string;
+  };
+  culturalFit: {
+    score: number;
+    comment: string;
+  };
+  confidenceAndClarity: {
+    score: number;
+    comment: string;
+  };
   strengths: string[];
   areasForImprovement: string[];
   finalAssessment: string;
