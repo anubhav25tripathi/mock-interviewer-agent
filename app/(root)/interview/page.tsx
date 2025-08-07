@@ -1,12 +1,12 @@
 import React from 'react'
-import Agent from '@/components/ui/Agent'
+import InterviewForm from '@/components/ui/generater'
 import { getCurrentUser } from '@/lib/actions/auth.action'
 const page = async() => {
   const user=await getCurrentUser();
   return (
     <> 
     <h3>Interview Page</h3>
-    <Agent userName={user?.name} userId={user?.id} type="generate" />
+    <InterviewForm userName={user?.name} userId={user?.id} type="generate" />
     </>
   )
 }
