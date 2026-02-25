@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   try {
     const { text } = await generateText({
-      model: groq("llama-3.1-70b-versatile"),
+      model: groq("llama-3.3-70b-versatile"),
       prompt: `Prepare questions for a job interview.
 The job role is ${role}.
 The job experience level is ${level}.
