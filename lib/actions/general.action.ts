@@ -1,10 +1,14 @@
 "use server";
 
-import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
+import { generateText } from "ai";
+import { createGroq } from "@ai-sdk/groq";
 
 import { db } from "@/firebase/admin";
 import { feedbackSchema } from "@/constants";
+
+const groq = createGroq({
+  apiKey: process.env.GROQ_API_KEY!,
+});
 
 export async function getInterviewsByUserId(
   userId: string
@@ -20,6 +24,7 @@ export async function getInterviewsByUserId(
     ...doc.data(),
   })) as Interview[];
 }
+
 export async function getLatestInterviews(
   params: GetLatestInterviewsParams
 ): Promise<Interview[] | null> {
@@ -38,9 +43,9 @@ export async function getLatestInterviews(
     ...doc.data(),
   })) as Interview[];
 }
+
 export async function getInterviewById(id: string): Promise<Interview | null> {
   const interview = await db.collection("interviews").doc(id).get();
-
   return interview.data() as Interview | null;
 }
 
@@ -55,41 +60,57 @@ export async function createFeedback(params: CreateFeedbackParams) {
       )
       .join("");
 
-    const { object } = await generateObject({
-      model: google("gemini-2.0-flash-001"),
-      schema: feedbackSchema,
+    const { text } = await generateText({
+      model: groq("llama-3.3-70b-versatile"),
       prompt: `
-        You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
-        Transcript:
-        ${formattedTranscript}
+You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
 
-        Please score the candidate from 0 to 100 in the following areas. Do not add categories other than the ones provided:
-        - **Communication Skills**: Clarity, articulation, structured responses.
-        - **Technical Knowledge**: Understanding of key concepts for the role.
-        - **Problem-Solving**: Ability to analyze problems and propose solutions.
-        - **Cultural & Role Fit**: Alignment with company values and job role.
-        - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
-        `,
-      system:
-        "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
+Transcript:
+${formattedTranscript}
+
+Please score the candidate from 0 to 100 in the following areas. Do not add categories other than the ones provided:
+- Communication Skills
+- Technical Knowledge
+- Problem-Solving
+- Cultural & Role Fit
+- Confidence & Clarity
+
+Return strictly valid JSON in this format:
+
+{
+  "totalScore": number,
+  "communicationSkills": { "score": number, "comment": string },
+  "technicalKnowledge": { "score": number, "comment": string },
+  "problemSolving": { "score": number, "comment": string },
+  "culturalFit": { "score": number, "comment": string },
+  "confidenceAndClarity": { "score": number, "comment": string },
+  "strengths": string[],
+  "areasForImprovement": string[],
+  "finalAssessment": string
+}
+
+Do not return anything except JSON.
+`,
     });
 
-    const feedback = {
-  interviewId: interviewId,
-  userId: userId,
-  totalScore: object.totalScore,
-  communicationSkills: object.communicationSkills,
-  technicalKnowledge: object.technicalKnowledge,
-  problemSolving: object.problemSolving,
-  culturalFit: object.culturalFit,
-  confidenceAndClarity: object.confidenceAndClarity,
-  strengths: object.strengths,
-  areasForImprovement: object.areasForImprovement,
-  finalAssessment: object.finalAssessment,
-  createdAt: new Date().toISOString(),
-};
+    const object = JSON.parse(text);
 
- let feedbackRef;
+    const feedback = {
+      interviewId: interviewId,
+      userId: userId,
+      totalScore: object.totalScore,
+      communicationSkills: object.communicationSkills,
+      technicalKnowledge: object.technicalKnowledge,
+      problemSolving: object.problemSolving,
+      culturalFit: object.culturalFit,
+      confidenceAndClarity: object.confidenceAndClarity,
+      strengths: object.strengths,
+      areasForImprovement: object.areasForImprovement,
+      finalAssessment: object.finalAssessment,
+      createdAt: new Date().toISOString(),
+    };
+
+    let feedbackRef;
 
     if (feedbackId) {
       feedbackRef = db.collection("feedback").doc(feedbackId);
@@ -109,17 +130,21 @@ export async function createFeedback(params: CreateFeedbackParams) {
 export async function getFeedbackByInterviewId(
   params: GetFeedbackByInterviewIdParams
 ): Promise<Feedback | null> {
-  const {interviewId, userId } = params;
+  const { interviewId, userId } = params;
 
-  const feedback=await db.collection('feedback')
-                       .where('interviewId','==',interviewId)
-                       .where('userId','==',userId)
-                       .limit(1)
-                       .get();
+  const feedback = await db
+    .collection("feedback")
+    .where("interviewId", "==", interviewId)
+    .where("userId", "==", userId)
+    .limit(1)
+    .get();
 
-  if(feedback.empty)  return null;                
-  const feedbackDoc=feedback.docs[0];
+  if (feedback.empty) return null;
+
+  const feedbackDoc = feedback.docs[0];
+
   return {
-    id:feedbackDoc.id, ...feedbackDoc.data()
+    id: feedbackDoc.id,
+    ...feedbackDoc.data(),
   } as Feedback;
 }
